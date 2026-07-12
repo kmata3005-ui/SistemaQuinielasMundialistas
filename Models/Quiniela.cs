@@ -1,0 +1,18 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace SistemaQuinielasMundialistas.Models
+{
+    public class Quiniela
+    {
+        public int Id { get; set; }
+
+        public string Nombre { get; set; }
+        public string Descripcion { get; set; }
+
+        public bool EsPrivada { get; set; }
+
+        public List<Usuario> Participantes { get; set; } = new List<Usuario>();
+    }
+}
