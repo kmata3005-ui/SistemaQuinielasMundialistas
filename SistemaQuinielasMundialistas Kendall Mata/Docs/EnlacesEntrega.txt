@@ -1,0 +1,10 @@
+Proyecto: Sistema de Quinielas Mundialistas
+Estudiante: Kendall Mata Sánchez
+
+Enlace del tablero de Trello:
+[PEGAR AQUÍ EL ENLACE PÚBLICO O COMPARTIDO DE TRELLO]
+
+Enlace del repositorio Git:
+[PEGAR AQUÍ EL ENLACE DEL REPOSITORIO]
+
+Branch final para revisión: master
