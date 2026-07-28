@@ -1,4 +1,4 @@
-﻿namespace SistemaQuinielasMundialistas
+namespace SistemaQuinielasMundialistas
 {
     partial class FrmPrincipal
     {
@@ -29,6 +29,11 @@
         private void InitializeComponent()
         {
             panelMenu = new Panel();
+            btnInformacion = new Button();
+            btnCruces = new Button();
+            btnGrupos = new Button();
+            btnTimeline = new Button();
+            btnInsignias = new Button();
             btnEstadisticas = new Button();
             btnRanking = new Button();
             btnPartidos = new Button();
@@ -36,6 +41,7 @@
             btnUsuarios = new Button();
             panelContenido = new Panel();
             label1 = new Label();
+            btnPronosticos = new Button();
             panelMenu.SuspendLayout();
             panelContenido.SuspendLayout();
             SuspendLayout();
@@ -43,6 +49,13 @@
             // panelMenu
             // 
             panelMenu.BackColor = SystemColors.ControlDarkDark;
+            panelMenu.AutoScroll = true;
+            panelMenu.Controls.Add(btnInformacion);
+            panelMenu.Controls.Add(btnCruces);
+            panelMenu.Controls.Add(btnGrupos);
+            panelMenu.Controls.Add(btnTimeline);
+            panelMenu.Controls.Add(btnInsignias);
+            panelMenu.Controls.Add(btnPronosticos);
             panelMenu.Controls.Add(btnEstadisticas);
             panelMenu.Controls.Add(btnRanking);
             panelMenu.Controls.Add(btnPartidos);
@@ -53,6 +66,59 @@
             panelMenu.Name = "panelMenu";
             panelMenu.Size = new Size(200, 450);
             panelMenu.TabIndex = 0;
+            // 
+            // 
+            // 
+            // btnInformacion
+            // 
+            btnInformacion.Location = new Point(34, 418);
+            btnInformacion.Name = "btnInformacion";
+            btnInformacion.Size = new Size(114, 36);
+            btnInformacion.TabIndex = 11;
+            btnInformacion.Text = "Información";
+            btnInformacion.UseVisualStyleBackColor = true;
+            btnInformacion.Click += btnInformacion_Click;
+            // 
+            // 
+            // btnCruces
+            // 
+            btnCruces.Location = new Point(34, 378);
+            btnCruces.Name = "btnCruces";
+            btnCruces.Size = new Size(114, 36);
+            btnCruces.TabIndex = 10;
+            btnCruces.Text = "Cruces";
+            btnCruces.UseVisualStyleBackColor = true;
+            btnCruces.Click += btnCruces_Click;
+            // 
+            // btnGrupos
+            // 
+            btnGrupos.Location = new Point(34, 338);
+            btnGrupos.Name = "btnGrupos";
+            btnGrupos.Size = new Size(114, 36);
+            btnGrupos.TabIndex = 9;
+            btnGrupos.Text = "Grupos";
+            btnGrupos.UseVisualStyleBackColor = true;
+            btnGrupos.Click += btnGrupos_Click;
+            // 
+            // btnTimeline
+            // 
+            btnTimeline.Location = new Point(34, 298);
+            btnTimeline.Name = "btnTimeline";
+            btnTimeline.Size = new Size(114, 36);
+            btnTimeline.TabIndex = 8;
+            btnTimeline.Text = "Timeline";
+            btnTimeline.UseVisualStyleBackColor = true;
+            btnTimeline.Click += btnTimeline_Click;
+            // 
+            // btnInsignias
+            // 
+            btnInsignias.Location = new Point(34, 258);
+            btnInsignias.Name = "btnInsignias";
+            btnInsignias.Size = new Size(114, 36);
+            btnInsignias.TabIndex = 7;
+            btnInsignias.Text = "Insignias";
+            btnInsignias.UseVisualStyleBackColor = true;
+            btnInsignias.Click += btnInsignias_Click;
             // 
             // btnEstadisticas
             // 
@@ -122,6 +188,16 @@
             label1.TabIndex = 0;
             label1.Text = "Módulo de Usuarios";
             // 
+            // btnPronosticos
+            // 
+            btnPronosticos.Location = new Point(34, 218);
+            btnPronosticos.Name = "btnPronosticos";
+            btnPronosticos.Size = new Size(114, 36);
+            btnPronosticos.TabIndex = 1;
+            btnPronosticos.Text = "Pronósticos";
+            btnPronosticos.UseVisualStyleBackColor = true;
+            btnPronosticos.Click += btnPronosticos_Click;
+            // 
             // FrmPrincipal
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
@@ -147,5 +223,11 @@
         private Button btnRanking;
         private Panel panelContenido;
         private Label label1;
+        private Button btnPronosticos;
+        private Button btnInsignias;
+        private Button btnTimeline;
+        private Button btnGrupos;
+        private Button btnCruces;
+        private Button btnInformacion;
     }
 }

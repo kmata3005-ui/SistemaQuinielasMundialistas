@@ -16,6 +16,12 @@ namespace SistemaQuinielasMundialistas.Views
         public FrmUsuarios()
         {
             InitializeComponent();
+            MostrarUsuarios();
+        }
+        private void MostrarUsuarios()
+        {
+            dgvUsuarios.DataSource = null;
+            dgvUsuarios.DataSource = usuarioService.ObtenerUsuarios();
         }
 
         private void btnGuardar_Click(object sender, EventArgs e)
@@ -28,9 +34,7 @@ namespace SistemaQuinielasMundialistas.Views
             usuario.Contrasena = txtContrasena.Text;
 
             usuarioService.AgregarUsuario(usuario);
-
-            dgvUsuarios.DataSource = null;
-            dgvUsuarios.DataSource = usuarioService.ObtenerUsuarios();
+            MostrarUsuarios();
         }
 
         private void btnEliminar_Click(object sender, EventArgs e)
@@ -46,8 +50,7 @@ namespace SistemaQuinielasMundialistas.Views
 
             usuarioService.EliminarUsuario(usuarioSeleccionado);
 
-            dgvUsuarios.DataSource = null;
-            dgvUsuarios.DataSource = usuarioService.ObtenerUsuarios();
+            MostrarUsuarios();
 
             txtNombre.Clear();
             txtCorreo.Clear();
@@ -108,8 +111,7 @@ namespace SistemaQuinielasMundialistas.Views
 
             usuarioService.ActualizarUsuario(usuarioSeleccionado, usuarioActualizado);
 
-            dgvUsuarios.DataSource = null;
-            dgvUsuarios.DataSource = usuarioService.ObtenerUsuarios();
+            MostrarUsuarios();
 
             MessageBox.Show("Usuario actualizado correctamente.");
         }

@@ -2,15 +2,24 @@ namespace SistemaQuinielasMundialistas
 {
     internal static class Program
     {
-        /// <summary>
-        ///  The main entry point for the application.
-        /// </summary>
         [STAThread]
         static void Main()
         {
-            // To customize application configuration such as set high DPI settings or default font,
-            // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
+            Services.SeedDataService.InicializarSiEsNecesario();
+
+            var partidoService = new Services.PartidoService();
+            var pronosticoService = new Services.PronosticoService();
+            partidoService.ActualizarEstadosAutomaticos();
+
+            foreach (Models.Partido partido in partidoService.ObtenerPartidos())
+            {
+                pronosticoService.RecalcularPronosticosDelPartido(partido);
+            }
+
+            new Services.UsuarioService().RecalcularPuntosUsuarios(
+                pronosticoService.ObtenerPronosticos());
+
             Application.Run(new FrmPrincipal());
         }
     }

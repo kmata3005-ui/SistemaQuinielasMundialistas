@@ -17,6 +17,13 @@ namespace SistemaQuinielasMundialistas.Views
         public FrmQuinielas()
         {
             InitializeComponent();
+            MostrarQuinielas();
+        }
+        private void MostrarQuinielas()
+        {
+            dgvQuinielas.DataSource = null;
+            dgvQuinielas.DataSource =
+                quinielaService.ObtenerQuinielas();
         }
 
         private void btnGuardarQuiniela_Click(object sender, EventArgs e)
@@ -29,8 +36,7 @@ namespace SistemaQuinielasMundialistas.Views
 
             quinielaService.AgregarQuiniela(quiniela);
 
-            dgvQuinielas.DataSource = null;
-            dgvQuinielas.DataSource = quinielaService.ObtenerQuinielas();
+            MostrarQuinielas();
 
             txtNombreQuiniela.Clear();
             txtDescripcion.Clear();
@@ -58,8 +64,7 @@ namespace SistemaQuinielasMundialistas.Views
 
             quinielaService.EliminarQuiniela(quinielaSeleccionada);
 
-            dgvQuinielas.DataSource = null;
-            dgvQuinielas.DataSource = quinielaService.ObtenerQuinielas();
+            MostrarQuinielas();
 
             MessageBox.Show("Quiniela eliminada correctamente.");
         }
@@ -103,9 +108,7 @@ namespace SistemaQuinielasMundialistas.Views
             quinielaService.ActualizarQuiniela(
                 quinielaOriginal,
                 quinielaActualizada);
-
-            dgvQuinielas.DataSource = null;
-            dgvQuinielas.DataSource = quinielaService.ObtenerQuinielas();
+            MostrarQuinielas();
 
             MessageBox.Show("Quiniela actualizada correctamente.");
         }
