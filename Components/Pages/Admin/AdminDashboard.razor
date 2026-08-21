@@ -1,0 +1,51 @@
+@page "/admin"
+@rendermode InteractiveServer
+@inject SessionService Session
+@inject NavigationManager Nav
+
+<PageTitle>Administración - Quinielas V2</PageTitle>
+
+@if (Session.UsuarioActual is not null && Session.EsAdministrador)
+{
+    <h1>Panel de administración</h1>
+
+    <div class="alert alert-primary">
+        Sesión iniciada como <strong>@Session.UsuarioActual.Nombre</strong> — Rol Administrador.
+    </div>
+
+    <div class="row g-3 mt-2">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h4>Mantenimiento de usuarios</h4>
+                    <p>Desactivar/reactivar usuarios y resetear contraseñas.</p>
+                    <a href="/admin/usuarios" class="btn btn-primary">Administrar usuarios</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h4>Administración de partidos</h4>
+                    <p>Cambiar fecha/hora, estado, resultado y anotadores. Al finalizar un partido se recalculan los puntajes.</p>
+                    <a href="/admin/partidos" class="btn btn-primary">Administrar partidos</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-warning mt-4">
+        El rol Administrador no tiene acceso a la funcionalidad de pronósticos.
+    </div>
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        if (!Session.EstaAutenticado || !Session.EsAdministrador)
+        {
+            Nav.NavigateTo("/login");
+        }
+    }
+}

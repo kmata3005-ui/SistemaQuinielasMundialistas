@@ -1,0 +1,96 @@
+@rendermode InteractiveServer
+@implements IDisposable
+@inject SessionService Session
+@inject NavigationManager Nav
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Quinielas Mundialistas V2</a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable">
+    <nav class="nav flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu"></span> Inicio
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="base-datos">
+                <span class="bi bi-list-nested-nav-menu"></span> Base de datos
+            </NavLink>
+        </div>
+
+        @if (!Session.EstaAutenticado)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="login">
+                    <span class="bi bi-person-fill"></span> Iniciar sesión
+                </NavLink>
+            </div>
+        }
+        else if (Session.EsAdministrador)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="admin">
+                    <span class="bi bi-shield-lock-fill"></span> Administración
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="admin/usuarios">
+                    <span class="bi bi-people-fill"></span> Usuarios
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="admin/partidos">
+                    <span class="bi bi-calendar-event-fill"></span> Partidos
+                </NavLink>
+            </div>
+        }
+        else
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="dashboard">
+                    <span class="bi bi-speedometer2"></span> Mi dashboard
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="pronosticos">
+                    <span class="bi bi-trophy-fill"></span> Pronósticos
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="notificaciones">
+                    <span class="bi bi-bell-fill"></span> Notificaciones
+                </NavLink>
+            </div>
+        }
+
+        @if (Session.EstaAutenticado)
+        {
+            <div class="nav-item px-3">
+                <button class="nav-link btn btn-link text-start" @onclick="Salir">
+                    <span class="bi bi-box-arrow-right"></span> Cerrar sesión
+                </button>
+            </div>
+        }
+    </nav>
+</div>
+
+@code {
+    protected override void OnInitialized() => Session.Cambio += Actualizar;
+
+    private void Actualizar() => InvokeAsync(StateHasChanged);
+
+    private void Salir()
+    {
+        Session.Cerrar();
+        Nav.NavigateTo("/login");
+    }
+
+    public void Dispose() => Session.Cambio -= Actualizar;
+}

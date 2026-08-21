@@ -1,12 +1,17 @@
-namespace SistemaQuinielasMundialistas.Models
+using System.ComponentModel.DataAnnotations;
+
+namespace SistemaQuinielaMundialistasV2.Models;
+
+public class TimelineEvento
 {
-    public class TimelineEvento
-    {
-        public int Id { get; set; }
-        public int? QuinielaId { get; set; }
-        public string Quiniela { get; set; } = "General";
-        public DateTime Fecha { get; set; }
-        public string Tipo { get; set; } = "Información";
-        public string Mensaje { get; set; } = string.Empty;
-    }
+    public int Id { get; set; }
+    public int? QuinielaId { get; set; }
+    public Quiniela? Quiniela { get; set; }
+    public DateTime Fecha { get; set; }
+
+    [Required, MaxLength(60)]
+    public string Tipo { get; set; } = "Información";
+
+    [Required, MaxLength(700)]
+    public string Mensaje { get; set; } = string.Empty;
 }

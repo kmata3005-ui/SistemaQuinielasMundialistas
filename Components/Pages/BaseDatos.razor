@@ -1,0 +1,35 @@
+@page "/base-datos"
+@inject DatabaseStatusService DatabaseStatusService
+
+<PageTitle>Base de datos - Quinielas V2</PageTitle>
+
+<h1>Base de datos relacional</h1>
+<p class="lead">La Iteración 2 ya utiliza SQLite + Entity Framework Core como fuente de datos.</p>
+
+@if (estado is null)
+{
+    <div class="alert alert-info">Consultando la base de datos...</div>
+}
+else
+{
+    <div class="row g-3 mb-4">
+        <div class="col-md-4"><div class="card shadow-sm"><div class="card-body"><h5>Usuarios</h5><div class="display-6">@estado.Usuarios</div></div></div></div>
+        <div class="col-md-4"><div class="card shadow-sm"><div class="card-body"><h5>Partidos</h5><div class="display-6">@estado.Partidos</div></div></div></div>
+        <div class="col-md-4"><div class="card shadow-sm"><div class="card-body"><h5>Pronósticos</h5><div class="display-6">@estado.Pronosticos</div></div></div></div>
+        <div class="col-md-4"><div class="card shadow-sm"><div class="card-body"><h5>Quinielas</h5><div class="display-6">@estado.Quinielas</div></div></div></div>
+        <div class="col-md-4"><div class="card shadow-sm"><div class="card-body"><h5>Selecciones</h5><div class="display-6">@estado.Selecciones</div></div></div></div>
+    </div>
+
+    <div class="alert alert-success">
+        <strong>Conexión correcta.</strong> Estos registros fueron migrados desde los datos reales de la Iteración 1 a una base de datos relacional.
+    </div>
+}
+
+@code {
+    private DatabaseStatus? estado;
+
+    protected override async Task OnInitializedAsync()
+    {
+        estado = await DatabaseStatusService.ObtenerEstadoAsync();
+    }
+}

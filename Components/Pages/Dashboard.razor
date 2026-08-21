@@ -1,0 +1,89 @@
+@page "/dashboard"
+@rendermode InteractiveServer
+@inject SessionService Session
+@inject NotificacionService NotificacionesService
+@inject FechaSimuladaService FechaService
+@inject NavigationManager Nav
+
+<PageTitle>Dashboard - Quinielas V2</PageTitle>
+
+@if (Session.UsuarioActual is not null)
+{
+    <h1>Dashboard del usuario</h1>
+
+    <div class="alert alert-success">
+        Sesión iniciada correctamente como <strong>@Session.UsuarioActual.Nombre</strong>.
+    </div>
+
+    @if (Pendientes24Horas > 0)
+    {
+        <div class="alert alert-warning">
+            🔔 Tiene <strong>@Pendientes24Horas</strong> partido(s) sin pronosticar en las próximas 24 horas.
+            <a href="/notificaciones" class="alert-link">Ver notificaciones</a>.
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            No hay pronósticos pendientes durante las próximas 24 horas.
+        </div>
+    }
+
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="card h-100"><div class="card-body">
+                <h4>Puntos</h4>
+                <div class="display-5">@Session.UsuarioActual.Puntos</div>
+            </div></div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100"><div class="card-body">
+                <h4>País preferido</h4>
+                <div class="fs-2">@Session.UsuarioActual.PaisPreferido</div>
+            </div></div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100"><div class="card-body">
+                <h4>Rol</h4>
+                <div class="fs-2">@Session.UsuarioActual.Rol</div>
+            </div></div>
+        </div>
+    </div>
+
+    <div class="mt-4 d-flex gap-2 flex-wrap">
+        <a href="/pronosticos" class="btn btn-primary">Realizar pronósticos</a>
+        <a href="/notificaciones" class="btn btn-outline-warning">Notificaciones 24 h</a>
+    </div>
+
+    <p class="mt-4 text-muted">
+        Fecha simulada utilizada por el sistema: @FechaSimulada.ToString("dd/MM/yyyy HH:mm").
+    </p>
+}
+
+@code {
+    private int Pendientes24Horas;
+    private DateTime FechaSimulada;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Session.EstaAutenticado)
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        if (Session.EsAdministrador)
+        {
+            Nav.NavigateTo("/admin");
+            return;
+        }
+
+        FechaSimulada = await FechaService.ObtenerAsync();
+
+        if (Session.UsuarioActual is not null)
+        {
+            var pendientes = await NotificacionesService.ObtenerPendientes24HorasAsync(Session.UsuarioActual.Id);
+            Pendientes24Horas = pendientes.Count;
+        }
+    }
+}

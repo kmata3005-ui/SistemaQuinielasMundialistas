@@ -1,166 +1,101 @@
-﻿using SistemaQuinielasMundialistas.Models;
-using SistemaQuinielasMundialistas.Repositories;
+using Microsoft.EntityFrameworkCore;
+using SistemaQuinielaMundialistasV2.Data;
+using SistemaQuinielaMundialistasV2.Models;
 
-namespace SistemaQuinielasMundialistas.Services
+namespace SistemaQuinielaMundialistasV2.Services;
+
+public class PartidoService(IDbContextFactory<AppDbContext> factory)
 {
-    public class PartidoService
+    public async Task<List<Partido>> ObtenerTodosAsync()
     {
-        private static readonly TimeSpan DuracionPartido = TimeSpan.FromHours(2);
+        await using var db = await factory.CreateDbContextAsync();
+        return await db.Partidos
+            .AsNoTracking()
+            .Include(x => x.SeleccionLocal)
+            .Include(x => x.SeleccionVisitante)
+            .OrderBy(x => x.FechaHora)
+            .ToListAsync();
+    }
 
-        private readonly IRepository<Partido> repository = new JsonRepository<Partido>("partidos.json");
-        private readonly FechaSimuladaService fechaSimuladaService = new FechaSimuladaService();
-        private readonly List<Partido> partidos;
+    public async Task<Partido?> ObtenerAsync(int id)
+    {
+        await using var db = await factory.CreateDbContextAsync();
+        return await db.Partidos
+            .AsNoTracking()
+            .Include(x => x.SeleccionLocal)
+            .Include(x => x.SeleccionVisitante)
+            .FirstOrDefaultAsync(x => x.Id == id);
+    }
 
-        public PartidoService()
+    public async Task<(bool Ok, string Mensaje)> ActualizarPorAdministradorAsync(
+        int partidoId,
+        DateTime fechaHora,
+        string estado,
+        int golesLocal,
+        int golesVisitante,
+        string anotadores)
+    {
+        await using var db = await factory.CreateDbContextAsync();
+        var partido = await db.Partidos.FirstOrDefaultAsync(x => x.Id == partidoId);
+        if (partido is null) return (false, "Partido no encontrado.");
+
+        if (golesLocal < 0 || golesVisitante < 0)
+            return (false, "Los goles no pueden ser negativos.");
+
+        partido.FechaHora = fechaHora;
+        partido.Estado = NormalizarEstado(estado);
+        partido.GolesLocal = golesLocal;
+        partido.GolesVisitante = golesVisitante;
+        partido.Anotadores = anotadores?.Trim() ?? string.Empty;
+
+        if (partido.Estado.Equals("Finalizado", StringComparison.OrdinalIgnoreCase))
         {
-            partidos = repository.GetAll();
-            ActualizarEstadosAutomaticos();
+            await RecalcularPuntajesAsync(db, partido);
         }
 
-        public List<Partido> ObtenerPartidos() => partidos;
+        await db.SaveChangesAsync();
+        return (true, "Partido actualizado correctamente.");
+    }
 
-        public DateTime ObtenerFechaSimulada() => fechaSimuladaService.ObtenerFecha();
+    private static string NormalizarEstado(string? estado)
+    {
+        var valor = estado?.Trim() ?? string.Empty;
+        if (valor.Equals("En curso", StringComparison.OrdinalIgnoreCase)) return "En curso";
+        if (valor.Equals("Finalizado", StringComparison.OrdinalIgnoreCase)) return "Finalizado";
+        return "Próximo";
+    }
 
-        public void EstablecerFechaSimulada(DateTime fecha)
+    private static async Task RecalcularPuntajesAsync(AppDbContext db, Partido partido)
+    {
+        var pronosticos = await db.Pronosticos
+            .Where(x => x.PartidoId == partido.Id)
+            .ToListAsync();
+
+        foreach (var pronostico in pronosticos)
         {
-            fechaSimuladaService.EstablecerFecha(fecha);
-            ActualizarEstadosAutomaticos();
+            pronostico.PuntosObtenidos = CalcularPuntos(pronostico, partido);
         }
 
-        public void AvanzarHoras(int horas)
+        var usuariosIds = pronosticos.Select(x => x.UsuarioId).Distinct().ToList();
+
+        foreach (var usuarioId in usuariosIds)
         {
-            fechaSimuladaService.AvanzarHoras(horas);
-            ActualizarEstadosAutomaticos();
+            var usuario = await db.Usuarios.FirstAsync(x => x.Id == usuarioId);
+            usuario.Puntos = await db.Pronosticos
+                .Where(x => x.UsuarioId == usuarioId)
+                .SumAsync(x => x.PuntosObtenidos);
         }
+    }
 
-        public void AvanzarDias(int dias)
-        {
-            fechaSimuladaService.AvanzarDias(dias);
-            ActualizarEstadosAutomaticos();
-        }
+    public static int CalcularPuntos(Pronostico pronostico, Partido partido)
+    {
+        if (pronostico.GolesLocalPronosticados == partido.GolesLocal &&
+            pronostico.GolesVisitantePronosticados == partido.GolesVisitante)
+            return 5;
 
-        public void RestablecerFechaReal()
-        {
-            fechaSimuladaService.RestablecerAFechaReal();
-            ActualizarEstadosAutomaticos();
-        }
+        int signoPronostico = Math.Sign(pronostico.GolesLocalPronosticados - pronostico.GolesVisitantePronosticados);
+        int signoReal = Math.Sign(partido.GolesLocal - partido.GolesVisitante);
 
-        public void AgregarPartido(Partido partido)
-        {
-            Validar(partido);
-            partido.Id = partidos.Count == 0 ? 1 : partidos.Max(p => p.Id) + 1;
-            partido.Estado = CalcularEstado(partido, ObtenerFechaSimulada());
-            partidos.Add(partido);
-            Guardar();
-        }
-
-        public void EliminarPartido(Partido partido)
-        {
-            partidos.Remove(partido);
-            Guardar();
-        }
-
-        public void ActualizarPartido(Partido original, Partido actualizado)
-        {
-            Validar(actualizado);
-            original.EquipoLocal = actualizado.EquipoLocal;
-            original.EquipoVisitante = actualizado.EquipoVisitante;
-            original.FechaHora = actualizado.FechaHora;
-            original.GolesLocal = actualizado.GolesLocal;
-            original.GolesVisitante = actualizado.GolesVisitante;
-            original.Anotadores = actualizado.Anotadores;
-            original.Grupo = actualizado.Grupo;
-            original.FueAPenales = actualizado.FueAPenales;
-            original.GolesPenalesLocal = actualizado.GolesPenalesLocal;
-            original.GolesPenalesVisitante = actualizado.GolesPenalesVisitante;
-            original.Estado = CalcularEstado(original, ObtenerFechaSimulada());
-            Guardar();
-        }
-
-        public bool AceptaPronosticos(Partido partido)
-        {
-            ActualizarEstado(partido);
-            return partido.Estado == "Próximo";
-        }
-
-        public bool ActualizarEstadosAutomaticos()
-        {
-            DateTime fechaSimulada = ObtenerFechaSimulada();
-            bool huboCambios = false;
-
-            foreach (Partido partido in partidos)
-            {
-                string nuevoEstado = CalcularEstado(partido, fechaSimulada);
-                if (!string.Equals(partido.Estado, nuevoEstado, StringComparison.Ordinal))
-                {
-                    partido.Estado = nuevoEstado;
-                    huboCambios = true;
-                }
-            }
-
-            if (huboCambios)
-            {
-                Guardar();
-            }
-
-            return huboCambios;
-        }
-
-        public void ActualizarEstado(Partido partido)
-        {
-            string nuevoEstado = CalcularEstado(partido, ObtenerFechaSimulada());
-            if (partido.Estado != nuevoEstado)
-            {
-                partido.Estado = nuevoEstado;
-                Guardar();
-            }
-        }
-
-        public static string CalcularEstado(Partido partido, DateTime fechaSimulada)
-        {
-            if (fechaSimulada < partido.FechaHora)
-            {
-                return "Próximo";
-            }
-
-            if (fechaSimulada < partido.FechaHora.Add(DuracionPartido))
-            {
-                return "En curso";
-            }
-
-            return "Finalizado";
-        }
-
-        public void GuardarCambios()
-        {
-            Guardar();
-        }
-
-        public static string NormalizarEstado(string estado)
-        {
-            string valor = (estado ?? string.Empty).Trim().ToLowerInvariant();
-            return valor switch
-            {
-                "finalizado" or "finalizdo" or "terminado" => "Finalizado",
-                "en curso" or "encurso" or "jugando" => "En curso",
-                _ => "Próximo"
-            };
-        }
-
-        private static void Validar(Partido partido)
-        {
-            if (string.IsNullOrWhiteSpace(partido.EquipoLocal) ||
-                string.IsNullOrWhiteSpace(partido.EquipoVisitante))
-            {
-                throw new ArgumentException("Los dos equipos son obligatorios.");
-            }
-
-            if (partido.EquipoLocal.Equals(partido.EquipoVisitante, StringComparison.OrdinalIgnoreCase))
-            {
-                throw new ArgumentException("Un equipo no puede jugar contra sí mismo.");
-            }
-        }
-
-        private void Guardar() => repository.SaveAll(partidos);
+        return signoPronostico == signoReal ? 2 : 0;
     }
 }

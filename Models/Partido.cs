@@ -1,44 +1,38 @@
-﻿namespace SistemaQuinielasMundialistas.Models
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace SistemaQuinielaMundialistasV2.Models;
+
+public class Partido
 {
-    public class Partido
-    {
-        public int Id { get; set; }
+    public int Id { get; set; }
+    public int SeleccionLocalId { get; set; }
+    public Seleccion? SeleccionLocal { get; set; }
+    public int SeleccionVisitanteId { get; set; }
+    public Seleccion? SeleccionVisitante { get; set; }
+    public DateTime FechaHora { get; set; }
 
-        public string EquipoLocal { get; set; } = string.Empty;
+    [Required, MaxLength(30)]
+    public string Estado { get; set; } = "Próximo";
 
-        public string EquipoVisitante { get; set; } = string.Empty;
+    [MaxLength(10)]
+    public string Grupo { get; set; } = string.Empty;
 
-        public DateTime FechaHora { get; set; }
+    [MaxLength(40)]
+    public string Fase { get; set; } = string.Empty;
 
-        public string Estado { get; set; } = "Próximo";
+    public int NumeroCruce { get; set; }
+    public int GolesLocal { get; set; }
+    public int GolesVisitante { get; set; }
+    public bool FueAPenales { get; set; }
+    public int GolesPenalesLocal { get; set; }
+    public int GolesPenalesVisitante { get; set; }
 
-        // Vacío para amistosos o partidos eliminatorios. Ejemplo: "A".
-        public string Grupo { get; set; } = string.Empty;
+    [MaxLength(1000)]
+    public string Anotadores { get; set; } = string.Empty;
 
-        // Fase del torneo: Grupos, Cuartos de final, Semifinal o Final.
-        public string Fase { get; set; } = string.Empty;
+    public ICollection<Pronostico> Pronosticos { get; set; } = new List<Pronostico>();
 
-        // Número interno del cruce dentro de la fase eliminatoria.
-        public int NumeroCruce { get; set; }
-
-        public int GolesLocal { get; set; }
-
-        public int GolesVisitante { get; set; }
-
-        // Se utiliza solamente en partidos eliminatorios que terminan empatados.
-        public bool FueAPenales { get; set; }
-
-        public int GolesPenalesLocal { get; set; }
-
-        public int GolesPenalesVisitante { get; set; }
-
-        public string Anotadores { get; set; } = string.Empty;
-        public string NombrePartido
-        {
-            get
-            {
-                return $"{EquipoLocal} vs {EquipoVisitante}";
-            }
-        }
-    }
+    [NotMapped]
+    public string NombrePartido => $"{SeleccionLocal?.Nombre ?? "Local"} vs {SeleccionVisitante?.Nombre ?? "Visitante"}";
 }

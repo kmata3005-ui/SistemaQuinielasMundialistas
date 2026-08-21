@@ -1,51 +1,32 @@
-using SistemaQuinielasMundialistas.Models;
-using SistemaQuinielasMundialistas.Repositories;
+using Microsoft.EntityFrameworkCore;
+using SistemaQuinielaMundialistasV2.Data;
 
-namespace SistemaQuinielasMundialistas.Services
+namespace SistemaQuinielaMundialistasV2.Services;
+
+public class FechaSimuladaService(IDbContextFactory<AppDbContext> factory)
 {
-    /// <summary>
-    /// Administra el reloj simulado de la aplicación y lo conserva en JSON.
-    /// </summary>
-    public class FechaSimuladaService
+    public async Task<DateTime> ObtenerAsync()
     {
-        private readonly IRepository<ConfiguracionSistema> repository =
-            new JsonRepository<ConfiguracionSistema>("configuracion.json");
+        await using var db = await factory.CreateDbContextAsync();
+        var configuracion = await db.Configuraciones.AsNoTracking().FirstOrDefaultAsync();
+        return configuracion?.FechaSimulada ?? DateTime.Now;
+    }
 
-        private readonly ConfiguracionSistema configuracion;
+    public async Task ActualizarAsync(DateTime nuevaFecha)
+    {
+        await using var db = await factory.CreateDbContextAsync();
+        var configuracion = await db.Configuraciones.FirstOrDefaultAsync();
 
-        public FechaSimuladaService()
+        if (configuracion is null)
         {
-            List<ConfiguracionSistema> configuraciones = repository.GetAll();
-            configuracion = configuraciones.FirstOrDefault() ?? new ConfiguracionSistema();
-
-            if (configuraciones.Count == 0)
-            {
-                Guardar();
-            }
+            configuracion = new Models.ConfiguracionSistema { Id = 1, FechaSimulada = nuevaFecha };
+            db.Configuraciones.Add(configuracion);
+        }
+        else
+        {
+            configuracion.FechaSimulada = nuevaFecha;
         }
 
-        public DateTime ObtenerFecha() => configuracion.FechaSimulada;
-
-        public void EstablecerFecha(DateTime fecha)
-        {
-            configuracion.FechaSimulada = fecha;
-            Guardar();
-        }
-
-        public DateTime AvanzarHoras(int horas)
-        {
-            EstablecerFecha(configuracion.FechaSimulada.AddHours(horas));
-            return configuracion.FechaSimulada;
-        }
-
-        public DateTime AvanzarDias(int dias)
-        {
-            EstablecerFecha(configuracion.FechaSimulada.AddDays(dias));
-            return configuracion.FechaSimulada;
-        }
-
-        public void RestablecerAFechaReal() => EstablecerFecha(DateTime.Now);
-
-        private void Guardar() => repository.SaveAll(new List<ConfiguracionSistema> { configuracion });
+        await db.SaveChangesAsync();
     }
 }

@@ -1,0 +1,169 @@
+@page "/pronosticos"
+@rendermode InteractiveServer
+@inject SessionService Session
+@inject PronosticoService PronosticosService
+@inject FechaSimuladaService FechaService
+@inject NavigationManager Nav
+
+<PageTitle>Pronósticos - Quinielas V2</PageTitle>
+
+@if (!Session.EstaAutenticado)
+{
+    <div class="alert alert-warning">Debe iniciar sesión.</div>
+}
+else if (Session.EsAdministrador)
+{
+    <div class="alert alert-danger">El administrador no puede realizar pronósticos.</div>
+}
+else
+{
+    <h1>Mis pronósticos</h1>
+    <p>Fecha simulada actual: <strong>@FechaSimulada.ToString("dd/MM/yyyy HH:mm")</strong>.</p>
+    <p>Los pronósticos se bloquean automáticamente cuando el partido inicia.</p>
+
+    @if (!string.IsNullOrWhiteSpace(Mensaje))
+    {
+        <div class="alert @(OperacionCorrecta ? "alert-success" : "alert-danger")">@Mensaje</div>
+    }
+
+    <h3 class="mt-4">Partidos disponibles</h3>
+
+    @if (Disponibles is null)
+    {
+        <p>Cargando...</p>
+    }
+    else if (Disponibles.Count == 0)
+    {
+        <div class="alert alert-info">
+            No hay partidos disponibles para pronosticar con la fecha simulada actual.
+            El administrador puede actualizar la fecha/hora de los partidos desde su panel.
+        </div>
+    }
+    else
+    {
+        <div class="row g-3">
+            @foreach (var partido in Disponibles)
+            {
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5>@partido.NombrePartido</h5>
+                            <p class="text-muted">@partido.FechaHora.ToString("dd/MM/yyyy HH:mm")</p>
+
+                            <div class="d-flex align-items-center gap-2">
+                                <input class="form-control text-center" style="max-width:90px"
+                                       type="number" min="0"
+                                       value="@ObtenerLocal(partido.Id)"
+                                       @onchange="e => CambiarLocal(partido.Id, e.Value?.ToString())" />
+                                <strong>-</strong>
+                                <input class="form-control text-center" style="max-width:90px"
+                                       type="number" min="0"
+                                       value="@ObtenerVisitante(partido.Id)"
+                                       @onchange="e => CambiarVisitante(partido.Id, e.Value?.ToString())" />
+                                <button class="btn btn-primary ms-2" @onclick="() => Guardar(partido.Id)">
+                                    Pronosticar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <h3 class="mt-5">Historial</h3>
+
+    @if (Historial is not null && Historial.Count > 0)
+    {
+        <div class="table-responsive mb-5">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Partido</th>
+                        <th>Pronóstico</th>
+                        <th>Estado</th>
+                        <th>Puntos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Historial)
+                    {
+                        <tr>
+                            <td>@item.Partido?.NombrePartido</td>
+                            <td>@item.GolesLocalPronosticados - @item.GolesVisitantePronosticados</td>
+                            <td>@item.Partido?.Estado</td>
+                            <td><strong>@item.PuntosObtenidos</strong></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+}
+
+@code {
+    private List<Partido>? Disponibles;
+    private List<Pronostico>? Historial;
+    private DateTime FechaSimulada;
+    private readonly Dictionary<int, (int Local, int Visitante)> Valores = new();
+    private string Mensaje = string.Empty;
+    private bool OperacionCorrecta;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Session.EstaAutenticado)
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        FechaSimulada = await FechaService.ObtenerAsync();
+        await Recargar();
+    }
+
+    private async Task Recargar()
+    {
+        if (Session.UsuarioActual is null) return;
+        Disponibles = await PronosticosService.ObtenerDisponiblesAsync(Session.UsuarioActual.Id);
+        Historial = await PronosticosService.ObtenerDelUsuarioAsync(Session.UsuarioActual.Id);
+    }
+
+    private int ObtenerLocal(int id) => Valores.TryGetValue(id, out var valor) ? valor.Local : 0;
+    private int ObtenerVisitante(int id) => Valores.TryGetValue(id, out var valor) ? valor.Visitante : 0;
+
+    private void CambiarLocal(int id, string? valor)
+    {
+        int numero = int.TryParse(valor, out var n) && n >= 0 ? n : 0;
+        var actual = Valores.TryGetValue(id, out var v) ? v : (0, 0);
+        Valores[id] = (numero, actual.Item2);
+    }
+
+    private void CambiarVisitante(int id, string? valor)
+    {
+        int numero = int.TryParse(valor, out var n) && n >= 0 ? n : 0;
+        var actual = Valores.TryGetValue(id, out var v) ? v : (0, 0);
+        Valores[id] = (actual.Item1, numero);
+    }
+
+    private async Task Guardar(int partidoId)
+    {
+        if (Session.UsuarioActual is null) return;
+
+        var valor = Valores.TryGetValue(partidoId, out var v) ? v : (0, 0);
+
+        var resultado = await PronosticosService.RegistrarAsync(
+            Session.UsuarioActual.Id,
+            partidoId,
+            valor.Item1,
+            valor.Item2);
+
+        OperacionCorrecta = resultado.Ok;
+        Mensaje = resultado.Mensaje;
+
+        if (resultado.Ok)
+        {
+            Valores.Remove(partidoId);
+            await Recargar();
+        }
+    }
+}

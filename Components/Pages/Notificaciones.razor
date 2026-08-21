@@ -1,0 +1,72 @@
+@page "/notificaciones"
+@rendermode InteractiveServer
+@inject SessionService Session
+@inject NotificacionService NotificacionesService
+@inject FechaSimuladaService FechaService
+@inject NavigationManager Nav
+
+<PageTitle>Notificaciones - Quinielas V2</PageTitle>
+
+@if (Session.UsuarioActual is not null)
+{
+    <h1>Partidos pendientes en las próximas 24 horas</h1>
+    <p>
+        El sistema compara los partidos próximos con los pronósticos del usuario
+        <strong>@Session.UsuarioActual.Nombre</strong>.
+    </p>
+    <p>Fecha simulada: <strong>@FechaSimulada.ToString("dd/MM/yyyy HH:mm")</strong></p>
+
+    @if (Pendientes is null)
+    {
+        <p>Cargando...</p>
+    }
+    else if (Pendientes.Count == 0)
+    {
+        <div class="alert alert-success">
+            No tiene partidos pendientes de pronosticar durante las próximas 24 horas.
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            Tiene <strong>@Pendientes.Count</strong> partido(s) pendiente(s) de pronosticar.
+        </div>
+
+        <div class="list-group">
+            @foreach (var partido in Pendientes)
+            {
+                <a class="list-group-item list-group-item-action" href="/pronosticos">
+                    <strong>@partido.NombrePartido</strong><br />
+                    <span>@partido.FechaHora.ToString("dd/MM/yyyy HH:mm")</span>
+                </a>
+            }
+        </div>
+    }
+}
+
+@code {
+    private List<Partido>? Pendientes;
+    private DateTime FechaSimulada;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Session.EstaAutenticado)
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        if (Session.EsAdministrador)
+        {
+            Nav.NavigateTo("/admin");
+            return;
+        }
+
+        FechaSimulada = await FechaService.ObtenerAsync();
+
+        if (Session.UsuarioActual is not null)
+        {
+            Pendientes = await NotificacionesService.ObtenerPendientes24HorasAsync(Session.UsuarioActual.Id);
+        }
+    }
+}

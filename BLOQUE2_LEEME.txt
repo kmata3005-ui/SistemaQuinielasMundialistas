@@ -1,0 +1,10 @@
+BLOQUE 2 - LOGIN, ROLES Y ADMINISTRADOR
+
+1. Abra SistemaQuinielaMundialistasV2.slnx en Visual Studio.
+2. Ejecute con HTTPS.
+3. Entre a "Iniciar sesión".
+4. Pruebe administrador: admin / Admin2026!
+5. Pruebe usuario: usuario1 / Mundial2026
+6. Como administrador abra "Usuarios" y pruebe desactivar/reactivar y resetear contraseña.
+
+IMPORTANTE: conserve la carpeta Data, porque contiene la base SQLite del proyecto.

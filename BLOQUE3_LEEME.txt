@@ -1,0 +1,33 @@
+SISTEMA DE QUINIELAS MUNDIALISTAS V2 - BLOQUE 3
+
+Incluye:
+- Todo lo realizado en Bloques 1 y 2.
+- Administración de partidos exclusiva del Administrador.
+- Cambio de fecha/hora, estado, resultado y anotadores.
+- Fecha simulada editable desde el panel de partidos.
+- Pronósticos para Usuario.
+- Bloqueo de pronósticos cuando el partido inició.
+- Restricción: Administrador no puede pronosticar.
+- Reglas de puntaje 5 / 2 / 0.
+- Historial de pronósticos.
+- Notificaciones de partidos pendientes en las próximas 24 horas.
+- Aviso de notificaciones en el Dashboard.
+
+PRUEBA RECOMENDADA:
+1. Entrar como administrador.
+2. Abrir Administración > Partidos.
+3. Tomar un partido y cambiar su fecha/hora para que quede dentro de las próximas 24 horas
+   respecto a la fecha simulada.
+4. Dejarlo en estado "Próximo".
+5. Cerrar sesión.
+6. Entrar con un usuario normal.
+7. El Dashboard debe avisar del partido pendiente.
+8. Abrir Pronósticos y registrar un marcador.
+9. Volver a Notificaciones: ese partido ya no debe aparecer.
+10. Como administrador, finalizar el partido y guardar el resultado.
+11. Al volver como usuario, el historial mostrará los puntos calculados.
+
+IMPORTANTE:
+Con los datos migrados de V1, los partidos existentes pueden estar finalizados.
+Para probar pronósticos/notificaciones, el administrador debe mover temporalmente un partido
+a una fecha futura respecto a la fecha simulada y ponerlo como "Próximo".

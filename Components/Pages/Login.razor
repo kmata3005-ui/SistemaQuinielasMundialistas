@@ -1,0 +1,23 @@
+@page "/login"
+@rendermode InteractiveServer
+@inject AuthService Auth
+@inject SessionService Session
+@inject NavigationManager Nav
+
+<PageTitle>Iniciar sesión - Quinielas V2</PageTitle>
+<h1>Iniciar sesión</h1>
+<p>Ingrese con su nombre de usuario o correo electrónico.</p>
+<div class="card p-4 shadow-sm" style="max-width:520px">
+    <label class="form-label">Usuario o correo</label>
+    <input class="form-control mb-3" @bind="identificador" />
+    <label class="form-label">Contraseña</label>
+    <input type="password" class="form-control mb-3" @bind="contrasena" @onkeydown="Enter" />
+    @if (!string.IsNullOrWhiteSpace(error)) { <div class="alert alert-danger">@error</div> }
+    <button class="btn btn-primary" @onclick="Ingresar" disabled="@cargando">@(cargando ? "Ingresando..." : "Ingresar")</button>
+</div>
+<div class="alert alert-info mt-4" style="max-width:700px"><strong>Datos de demostración:</strong><br/>Administrador: <code>admin</code> / <code>Admin2026!</code><br/>Usuario: <code>usuario1</code> / <code>Mundial2026</code></div>
+@code {
+ string identificador="", contrasena="", error=""; bool cargando;
+ async Task Ingresar(){ cargando=true; error=""; var r=await Auth.LoginAsync(identificador,contrasena); cargando=false; if(r.Usuario is null){error=r.Error??"No fue posible iniciar sesión.";return;} Session.Iniciar(r.Usuario); Nav.NavigateTo(r.Usuario.Rol=="Administrador"?"/admin":"/dashboard"); }
+ async Task Enter(KeyboardEventArgs e){ if(e.Key=="Enter") await Ingresar(); }
+}

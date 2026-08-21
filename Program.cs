@@ -1,26 +1,46 @@
-namespace SistemaQuinielasMundialistas
+using Microsoft.EntityFrameworkCore;
+using SistemaQuinielaMundialistasV2.Components;
+using SistemaQuinielaMundialistasV2.Data;
+using SistemaQuinielaMundialistasV2.Repositories;
+using SistemaQuinielaMundialistasV2.Services;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
+
+string connectionString = builder.Configuration.GetConnectionString("QuinielasDb")
+    ?? throw new InvalidOperationException("No se encontró la conexión 'QuinielasDb'.");
+
+builder.Services.AddDbContextFactory<AppDbContext>(options =>
+    options.UseSqlite(connectionString));
+
+builder.Services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
+builder.Services.AddScoped<DatabaseStatusService>();
+builder.Services.AddSingleton<PasswordService>();
+builder.Services.AddScoped<SessionService>();
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<AdminUsuarioService>();
+builder.Services.AddScoped<FechaSimuladaService>();
+builder.Services.AddScoped<PartidoService>();
+builder.Services.AddScoped<PronosticoService>();
+builder.Services.AddScoped<NotificacionService>();
+
+var app = builder.Build();
+
+if (!app.Environment.IsDevelopment())
 {
-    internal static class Program
-    {
-        [STAThread]
-        static void Main()
-        {
-            ApplicationConfiguration.Initialize();
-            Services.SeedDataService.InicializarSiEsNecesario();
-
-            var partidoService = new Services.PartidoService();
-            var pronosticoService = new Services.PronosticoService();
-            partidoService.ActualizarEstadosAutomaticos();
-
-            foreach (Models.Partido partido in partidoService.ObtenerPartidos())
-            {
-                pronosticoService.RecalcularPronosticosDelPartido(partido);
-            }
-
-            new Services.UsuarioService().RecalcularPuntosUsuarios(
-                pronosticoService.ObtenerPronosticos());
-
-            Application.Run(new FrmPrincipal());
-        }
-    }
+    app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    app.UseHsts();
 }
+
+app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
+app.UseHttpsRedirection();
+app.UseAntiforgery();
+app.MapStaticAssets();
+app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode();
+
+await DatabaseInitializer.InitializeAsync(app.Services);
+
+app.Run();

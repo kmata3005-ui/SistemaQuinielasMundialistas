@@ -1,0 +1,201 @@
+@page "/admin/partidos"
+@rendermode InteractiveServer
+@inject SessionService Session
+@inject PartidoService PartidosService
+@inject FechaSimuladaService FechaService
+@inject NavigationManager Nav
+
+<PageTitle>Partidos - Administración</PageTitle>
+
+@if (!Session.EstaAutenticado || !Session.EsAdministrador)
+{
+    <div class="alert alert-danger">Esta página es exclusiva para administradores.</div>
+}
+else
+{
+    <h1>Administración de partidos</h1>
+    <p>El administrador es el único rol autorizado para cambiar fechas, horas, resultados y estado de los partidos.</p>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Fecha simulada del sistema</h5>
+            <div class="row g-2 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label">Fecha y hora simulada</label>
+                    <input class="form-control" type="datetime-local" @bind="FechaSimulada" @bind:format="yyyy-MM-ddTHH:mm" />
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-outline-primary" @onclick="GuardarFechaSimulada">Actualizar fecha simulada</button>
+                </div>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(MensajeFecha))
+            {
+                <div class="alert alert-info mt-3 mb-0">@MensajeFecha</div>
+            }
+        </div>
+    </div>
+
+    @if (Partidos is null)
+    {
+        <p>Cargando partidos...</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>Partido</th>
+                        <th>Fecha / hora</th>
+                        <th>Estado</th>
+                        <th>Marcador</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var partido in Partidos)
+                    {
+                        <tr>
+                            <td>@partido.NombrePartido</td>
+                            <td>@partido.FechaHora.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td><span class="badge text-bg-secondary">@partido.Estado</span></td>
+                            <td>@partido.GolesLocal - @partido.GolesVisitante</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" @onclick="() => Editar(partido)">Editar</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    @if (Seleccionado is not null)
+    {
+        <div class="card mt-4 mb-5">
+            <div class="card-body">
+                <h4>Editar: @Seleccionado.NombrePartido</h4>
+
+                <div class="row g-3">
+                    <div class="col-md-5">
+                        <label class="form-label">Fecha y hora</label>
+                        <input class="form-control" type="datetime-local" @bind="FechaHora" @bind:format="yyyy-MM-ddTHH:mm" />
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Estado</label>
+                        <select class="form-select" @bind="Estado">
+                            <option>Próximo</option>
+                            <option>En curso</option>
+                            <option>Finalizado</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label">Goles local</label>
+                        <input class="form-control" type="number" min="0" @bind="GolesLocal" />
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label">Goles visitante</label>
+                        <input class="form-control" type="number" min="0" @bind="GolesVisitante" />
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Anotadores</label>
+                        <textarea class="form-control" rows="2" @bind="Anotadores"></textarea>
+                    </div>
+                </div>
+
+                <div class="mt-3 d-flex gap-2">
+                    <button class="btn btn-success" @onclick="Guardar">Guardar cambios</button>
+                    <button class="btn btn-outline-secondary" @onclick="Cancelar">Cancelar</button>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(Mensaje))
+                {
+                    <div class="alert @(OperacionCorrecta ? "alert-success" : "alert-danger") mt-3 mb-0">
+                        @Mensaje
+                    </div>
+                }
+            </div>
+        </div>
+    }
+}
+
+@code {
+    private List<Partido>? Partidos;
+    private Partido? Seleccionado;
+
+    private DateTime FechaHora;
+    private string Estado = "Próximo";
+    private int GolesLocal;
+    private int GolesVisitante;
+    private string Anotadores = string.Empty;
+    private string Mensaje = string.Empty;
+    private bool OperacionCorrecta;
+
+    private DateTime FechaSimulada;
+    private string MensajeFecha = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Session.EstaAutenticado || !Session.EsAdministrador)
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        var fecha = await FechaService.ObtenerAsync();
+        FechaSimulada = fecha;
+        await CargarPartidos();
+    }
+
+    private async Task CargarPartidos()
+        => Partidos = await PartidosService.ObtenerTodosAsync();
+
+    private void Editar(Partido partido)
+    {
+        Seleccionado = partido;
+        FechaHora = partido.FechaHora;
+        Estado = partido.Estado;
+        GolesLocal = partido.GolesLocal;
+        GolesVisitante = partido.GolesVisitante;
+        Anotadores = partido.Anotadores;
+        Mensaje = string.Empty;
+    }
+
+    private async Task Guardar()
+    {
+        if (Seleccionado is null) return;
+
+        var resultado = await PartidosService.ActualizarPorAdministradorAsync(
+            Seleccionado.Id,
+            FechaHora,
+            Estado,
+            GolesLocal,
+            GolesVisitante,
+            Anotadores);
+
+        OperacionCorrecta = resultado.Ok;
+        Mensaje = resultado.Mensaje;
+
+        if (resultado.Ok)
+        {
+            await CargarPartidos();
+            Seleccionado = Partidos?.FirstOrDefault(x => x.Id == Seleccionado.Id);
+        }
+    }
+
+    private void Cancelar()
+    {
+        Seleccionado = null;
+        Mensaje = string.Empty;
+    }
+
+    private async Task GuardarFechaSimulada()
+    {
+        await FechaService.ActualizarAsync(FechaSimulada);
+        MensajeFecha = $"Fecha simulada actualizada a {FechaSimulada:dd/MM/yyyy HH:mm}.";
+    }
+}

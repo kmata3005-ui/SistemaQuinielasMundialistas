@@ -1,0 +1,6 @@
+BLOQUE 1 - CONTENIDO
+Blazor Web base
+SQLite + EF Core
+Repository Pattern con EfRepository<T>
+Datos V1 migrados a Data/quinielas_v2.db
+Pantalla /base-datos para comprobación

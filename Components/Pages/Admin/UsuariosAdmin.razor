@@ -1,0 +1,22 @@
+@page "/admin/usuarios"
+@rendermode InteractiveServer
+@inject SessionService Session
+@inject AdminUsuarioService Servicio
+@inject NavigationManager Nav
+<PageTitle>Usuarios - Administración</PageTitle>
+@if(Session.EsAdministrador){
+<h1>Mantenimiento de usuarios</h1><p>El administrador puede desactivar/reactivar cuentas y restablecer contraseñas.</p>
+@if(!string.IsNullOrEmpty(mensaje)){<div class="alert @(ok?"alert-success":"alert-danger")">@mensaje</div>}
+<div class="table-responsive"><table class="table table-striped align-middle"><thead><tr><th>ID</th><th>Usuario</th><th>Correo</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
+@foreach(var u in usuarios){<tr><td>@u.Id</td><td>@u.NombreUsuario<br/><small>@u.Nombre</small></td><td>@u.Correo</td><td>@u.Rol</td><td><span class="badge @(u.Activo?"text-bg-success":"text-bg-danger")">@(u.Activo?"Activo":"Desactivado")</span></td><td><button class="btn btn-sm btn-outline-warning me-2" disabled="@(u.Rol=="Administrador")" @onclick="()=>Estado(u.Id)">@(u.Activo?"Desactivar":"Reactivar")</button><button class="btn btn-sm btn-outline-primary" @onclick="()=>Seleccionar(u)">Reset contraseña</button></td></tr>}
+</tbody></table></div>
+@if(seleccionado is not null){<div class="card p-3 mt-3" style="max-width:600px"><h4>Restablecer contraseña: @seleccionado.NombreUsuario</h4><input type="password" class="form-control my-2" placeholder="Nueva contraseña (mínimo 8 caracteres)" @bind="nueva"/><div><button class="btn btn-primary me-2" @onclick="Reset">Guardar nueva contraseña</button><button class="btn btn-secondary" @onclick="()=>seleccionado=null">Cancelar</button></div></div>}
+}
+@code{
+ List<Usuario> usuarios=[]; Usuario? seleccionado; string nueva="",mensaje=""; bool ok;
+ protected override async Task OnInitializedAsync(){if(!Session.EsAdministrador){Nav.NavigateTo("/login");return;} await Cargar();}
+ async Task Cargar()=>usuarios=await Servicio.ListarAsync();
+ async Task Estado(int id){try{await Servicio.CambiarEstadoAsync(id);ok=true;mensaje="Estado actualizado correctamente.";await Cargar();}catch(Exception ex){ok=false;mensaje=ex.Message;}}
+ void Seleccionar(Usuario u){seleccionado=u;nueva="";mensaje="";}
+ async Task Reset(){try{await Servicio.ResetearContrasenaAsync(seleccionado!.Id,nueva);ok=true;mensaje="Contraseña restablecida correctamente.";seleccionado=null;nueva="";}catch(Exception ex){ok=false;mensaje=ex.Message;}}
+}
