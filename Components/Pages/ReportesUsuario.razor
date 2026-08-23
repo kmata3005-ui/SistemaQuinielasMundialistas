@@ -1,0 +1,113 @@
+@page "/reportes"
+@rendermode InteractiveServer
+@inject SessionService Session
+@inject EstadisticaV2Service EstadisticaService
+@inject NavigationManager Nav
+
+<PageTitle>Mis reportes - Quinielas V2</PageTitle>
+
+@if (Datos is null)
+{
+    <p>Cargando reportes...</p>
+}
+else
+{
+    <h1>Reportes del usuario</h1>
+    <p>Estadísticas correspondientes al rol Usuario.</p>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="card h-100"><div class="card-body">
+                <h5>Equipo más apostado</h5>
+                <div class="fs-3">@Datos.EquipoMasApostado</div>
+            </div></div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100"><div class="card-body">
+                <h5>Equipo sorpresa</h5>
+                <div class="fs-3">@Datos.EquipoSorpresa</div>
+                <small class="text-muted">
+                    Se conserva la lógica de la V1: es sorpresa cuando menos de la mitad de los pronósticos apoyaban al ganador real.
+                </small>
+            </div></div>
+        </div>
+    </div>
+
+    <h3 class="mt-5">Probabilidad de acierto en pronósticos anteriores</h3>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="display-4">@Datos.ProbabilidadAcierto.ToString("0.00")%</div>
+            <p class="mb-1">
+                @Datos.Aciertos aciertos de @Datos.PronosticosFinalizados pronósticos correspondientes a partidos finalizados.
+            </p>
+            <p class="mb-0">Marcadores exactos: <strong>@Datos.MarcadoresExactos</strong>.</p>
+        </div>
+    </div>
+
+    <h3>Estadística completa del equipo sorpresa</h3>
+
+    @if (Datos.DetalleSorpresas.Count == 0)
+    {
+        <div class="alert alert-info">No hay suficientes partidos sorpresa para mostrar detalle.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Partido</th>
+                        <th>Ganador real</th>
+                        <th>Resultado</th>
+                        <th>Pronósticos</th>
+                        <th>Apoyaban al ganador</th>
+                        <th>% de apoyo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Datos.DetalleSorpresas)
+                    {
+                        <tr>
+                            <td>@item.Partido</td>
+                            <td>@item.GanadorReal</td>
+                            <td>@item.Resultado</td>
+                            <td>@item.TotalPronosticos</td>
+                            <td>@item.ApoyoGanador</td>
+                            <td>@item.PorcentajeApoyoGanador.ToString("0.00")%</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    <div class="alert alert-info mt-4">
+        La descarga de estos reportes se incorpora en el Bloque 5.
+    </div>
+}
+
+@code {
+    private EstadisticasUsuario? Datos;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Session.EstaAutenticado)
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        if (Session.EsAdministrador)
+        {
+            Nav.NavigateTo("/admin");
+            return;
+        }
+
+        if (Session.UsuarioActual is not null)
+        {
+            Datos = await EstadisticaService.ObtenerUsuarioAsync(Session.UsuarioActual.Id);
+        }
+    }
+}

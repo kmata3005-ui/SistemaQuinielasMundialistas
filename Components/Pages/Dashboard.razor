@@ -3,6 +3,7 @@
 @inject SessionService Session
 @inject NotificacionService NotificacionesService
 @inject FechaSimuladaService FechaService
+@inject InsigniaV2Service InsigniaService
 @inject NavigationManager Nav
 
 <PageTitle>Dashboard - Quinielas V2</PageTitle>
@@ -50,9 +51,29 @@
         </div>
     </div>
 
+    <div class="card mt-4">
+        <div class="card-body">
+            <h4>🏅 Mis insignias</h4>
+            @if (Insignias.Count == 0)
+            {
+                <p class="text-muted mb-0">Todavía no tiene insignias asignadas.</p>
+            }
+            else
+            {
+                @foreach (var insignia in Insignias)
+                {
+                    <span class="badge text-bg-warning me-2 mb-2 fs-6">🏅 @insignia</span>
+                }
+            }
+        </div>
+    </div>
+
     <div class="mt-4 d-flex gap-2 flex-wrap">
         <a href="/pronosticos" class="btn btn-primary">Realizar pronósticos</a>
         <a href="/notificaciones" class="btn btn-outline-warning">Notificaciones 24 h</a>
+        <a href="/ranking" class="btn btn-outline-primary">Ranking</a>
+        <a href="/quinielas" class="btn btn-outline-primary">Quinielas</a>
+        <a href="/reportes" class="btn btn-outline-primary">Mis reportes</a>
     </div>
 
     <p class="mt-4 text-muted">
@@ -63,6 +84,7 @@
 @code {
     private int Pendientes24Horas;
     private DateTime FechaSimulada;
+    private List<string> Insignias = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -84,6 +106,7 @@
         {
             var pendientes = await NotificacionesService.ObtenerPendientes24HorasAsync(Session.UsuarioActual.Id);
             Pendientes24Horas = pendientes.Count;
+            Insignias = await InsigniaService.ObtenerDelUsuarioAsync(Session.UsuarioActual.Id);
         }
     }
 }

@@ -1,0 +1,33 @@
+SISTEMA DE QUINIELAS MUNDIALISTAS V2 - BLOQUE 4
+
+AGREGA:
+- Ranking global.
+- Insignias en Dashboard.
+- Insignias en Ranking.
+- Quinielas públicas/privadas con integrantes y posiciones.
+- Reportes del Administrador:
+  * Resultado más repetido.
+  * Partido con más aciertos.
+  * Usuarios con más aciertos Top 1/3/5.
+  * Partido con más pronósticos.
+  * Promedio de goles.
+  * Partido sin aciertos.
+- Reportes del Usuario:
+  * Equipo más apostado.
+  * Equipo sorpresa y estadística completa.
+  * Probabilidad histórica de acierto.
+
+PRUEBA:
+1. Recompilar solución.
+2. Entrar como usuario normal.
+3. Revisar Dashboard -> insignias.
+4. Revisar Ranking.
+5. Revisar Quinielas.
+6. Revisar Mis reportes.
+7. Cerrar sesión.
+8. Entrar como Administrador.
+9. Abrir Reportes.
+10. Probar Top 1, Top 3 y Top 5.
+
+NOTA:
+La descarga CSV/TXT/PDF corresponde al Bloque 5.

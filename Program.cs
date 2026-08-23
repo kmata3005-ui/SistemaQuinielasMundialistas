@@ -25,6 +25,10 @@ builder.Services.AddScoped<FechaSimuladaService>();
 builder.Services.AddScoped<PartidoService>();
 builder.Services.AddScoped<PronosticoService>();
 builder.Services.AddScoped<NotificacionService>();
+builder.Services.AddScoped<RankingService>();
+builder.Services.AddScoped<InsigniaV2Service>();
+builder.Services.AddScoped<QuinielaV2Service>();
+builder.Services.AddScoped<EstadisticaV2Service>();
 
 var app = builder.Build();
 

@@ -1,0 +1,80 @@
+@page "/ranking"
+@rendermode InteractiveServer
+@inject SessionService Session
+@inject RankingService RankingService
+@inject NavigationManager Nav
+
+<PageTitle>Ranking - Quinielas V2</PageTitle>
+
+@if (ListaRanking is null)
+{
+    <p>Cargando ranking...</p>
+}
+else
+{
+    <h1>Ranking global</h1>
+    <p>Clasificación de usuarios activos ordenada por puntos.</p>
+
+    @if (ListaRanking.Count > 0)
+    {
+        <div class="alert alert-primary">
+            🏆 Líder actual: <strong>@ListaRanking[0].NombreUsuario</strong> con
+            <strong>@ListaRanking[0].Puntos puntos</strong>.
+        </div>
+    }
+
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Pos.</th>
+                    <th>Usuario</th>
+                    <th>Nombre</th>
+                    <th>País</th>
+                    <th>Puntos</th>
+                    <th>Insignias</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in ListaRanking)
+                {
+                    <tr class="@(Session.UsuarioActual?.Id == item.UsuarioId ? "table-warning" : string.Empty)">
+                        <td><strong>@item.Posicion</strong></td>
+                        <td>@item.NombreUsuario</td>
+                        <td>@item.Nombre</td>
+                        <td>@item.Pais</td>
+                        <td><strong>@item.Puntos</strong></td>
+                        <td>
+                            @if (item.Insignias.Count == 0)
+                            {
+                                <span class="text-muted">Sin insignias</span>
+                            }
+                            else
+                            {
+                                @foreach (var insignia in item.Insignias)
+                                {
+                                    <span class="badge text-bg-warning me-1 mb-1">🏅 @insignia</span>
+                                }
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<RankingItem>? ListaRanking;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Session.EstaAutenticado)
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        ListaRanking = await RankingService.ObtenerRankingGlobalAsync();
+    }
+}
