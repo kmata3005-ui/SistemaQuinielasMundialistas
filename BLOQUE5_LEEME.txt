@@ -1,0 +1,24 @@
+SISTEMA DE QUINIELAS MUNDIALISTAS V2 - BLOQUE 5
+
+AGREGA:
+- Descarga CSV de reportes administrativos.
+- Descarga TXT de reportes administrativos.
+- Descarga PDF de reportes administrativos.
+- Descarga CSV de reportes de usuario.
+- Descarga TXT de reportes de usuario.
+- Descarga PDF de reportes de usuario.
+- Generador PDF desarrollado en el propio código, sin librería PDF externa.
+
+TAMBIEN INCLUYE:
+- La corrección de nombres ListaRanking y ListaQuinielas que se realizó al probar Bloque 4.
+
+PRUEBA:
+1. Recompilar solución.
+2. Entrar como administrador.
+3. Reportes -> probar CSV, TXT y PDF.
+4. Abrir los 3 archivos descargados.
+5. Entrar como usuario.
+6. Mis reportes -> probar CSV, TXT y PDF.
+7. Abrir los 3 archivos descargados.
+
+Si los archivos se descargan y abren correctamente, Bloque 5 queda validado.

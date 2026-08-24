@@ -29,6 +29,7 @@ builder.Services.AddScoped<RankingService>();
 builder.Services.AddScoped<InsigniaV2Service>();
 builder.Services.AddScoped<QuinielaV2Service>();
 builder.Services.AddScoped<EstadisticaV2Service>();
+builder.Services.AddSingleton<ReporteExportService>();
 
 var app = builder.Build();
 

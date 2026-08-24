@@ -2,6 +2,8 @@
 @rendermode InteractiveServer
 @inject SessionService Session
 @inject EstadisticaV2Service EstadisticaService
+@inject ReporteExportService Exportador
+@inject IJSRuntime JS
 @inject NavigationManager Nav
 
 <PageTitle>Reportes administrativos - Quinielas V2</PageTitle>
@@ -14,6 +16,16 @@ else
 {
     <h1>Reportes del administrador</h1>
     <p>Estadísticas visibles exclusivamente para el rol Administrador.</p>
+
+    <div class="d-flex gap-2 flex-wrap mb-4">
+        <button class="btn btn-success" @onclick="DescargarCsv">Descargar CSV</button>
+        <button class="btn btn-outline-success" @onclick="DescargarTxt">Descargar TXT</button>
+        <button class="btn btn-danger" @onclick="DescargarPdf">Descargar PDF</button>
+    </div>
+
+    <div class="alert alert-secondary">
+        El PDF se genera con código propio del proyecto, sin librerías externas de generación PDF.
+    </div>
 
     <div class="row g-3">
         <div class="col-md-6">
@@ -79,10 +91,6 @@ else
             </tbody>
         </table>
     </div>
-
-    <div class="alert alert-info mt-4">
-        La descarga CSV/TXT/PDF se incorpora en el Bloque 5.
-    </div>
 }
 
 @code {
@@ -98,5 +106,29 @@ else
         }
 
         Datos = await EstadisticaService.ObtenerAdministradorAsync();
+    }
+
+    private async Task DescargarCsv()
+    {
+        if (Datos is null) return;
+        await Descargar("reporte_administrador.csv", "text/csv;charset=utf-8", Exportador.CrearCsvAdministrador(Datos));
+    }
+
+    private async Task DescargarTxt()
+    {
+        if (Datos is null) return;
+        await Descargar("reporte_administrador.txt", "text/plain;charset=utf-8", Exportador.CrearTxtAdministrador(Datos));
+    }
+
+    private async Task DescargarPdf()
+    {
+        if (Datos is null) return;
+        await Descargar("reporte_administrador.pdf", "application/pdf", Exportador.CrearPdfAdministrador(Datos));
+    }
+
+    private async Task Descargar(string nombre, string tipo, byte[] contenido)
+    {
+        string base64 = Convert.ToBase64String(contenido);
+        await JS.InvokeVoidAsync("quinielasDownload.fromBase64", nombre, tipo, base64);
     }
 }
