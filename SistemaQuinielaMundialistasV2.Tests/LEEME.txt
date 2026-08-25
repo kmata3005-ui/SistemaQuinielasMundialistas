@@ -1,0 +1,7 @@
+Copiar estos 4 archivos dentro de SistemaQuinielaMundialistasV2.Tests.
+NO borres los tests existentes.
+Luego ejecutar:
+dotnet test .\SistemaQuinielaMundialistasV2.Tests\SistemaQuinielaMundialistasV2.Tests.csproj
+
+y luego coverage:
+dotnet test .\SistemaQuinielaMundialistasV2.Tests\SistemaQuinielaMundialistasV2.Tests.csproj --collect:"XPlat Code Coverage"

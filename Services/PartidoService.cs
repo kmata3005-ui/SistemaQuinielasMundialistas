@@ -76,11 +76,19 @@ public class PartidoService(IDbContextFactory<AppDbContext> factory)
             pronostico.PuntosObtenidos = CalcularPuntos(pronostico, partido);
         }
 
-        var usuariosIds = pronosticos.Select(x => x.UsuarioId).Distinct().ToList();
+        // Guardamos primero los nuevos puntos de los pronósticos.
+        await db.SaveChangesAsync();
+
+        var usuariosIds = pronosticos
+            .Select(x => x.UsuarioId)
+            .Distinct()
+            .ToList();
 
         foreach (var usuarioId in usuariosIds)
         {
-            var usuario = await db.Usuarios.FirstAsync(x => x.Id == usuarioId);
+            var usuario = await db.Usuarios
+                .FirstAsync(x => x.Id == usuarioId);
+
             usuario.Puntos = await db.Pronosticos
                 .Where(x => x.UsuarioId == usuarioId)
                 .SumAsync(x => x.PuntosObtenidos);
