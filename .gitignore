@@ -12,3 +12,6 @@ obj/
 ## OS
 Thumbs.db
 .DS_Store
+
+# Resultados generados por pruebas
+**/TestResults/

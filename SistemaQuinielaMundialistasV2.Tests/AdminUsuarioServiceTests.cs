@@ -16,7 +16,7 @@ public class AdminUsuarioServiceTests
                 new Usuario { Id=1, Nombre="A", Correo="a@x.com", NombreUsuario="a", Contrasena="12345678" });
             await db.SaveChangesAsync();
         }
-        var s = new AdminUsuarioService(f, new PasswordService());
+        var s = new AdminUsuarioService(f);
         var r = await s.ListarAsync();
         Assert.Equal(new[] {1,2}, r.Select(x=>x.Id));
     }
@@ -29,7 +29,7 @@ public class AdminUsuarioServiceTests
             db.Usuarios.Add(new Usuario { Id=1, Nombre="A", Correo="a@x.com", NombreUsuario="a", Contrasena="x", Activo=true });
             await db.SaveChangesAsync();
         }
-        var s=new AdminUsuarioService(f,new PasswordService());
+        var s = new AdminUsuarioService(f);
         await s.CambiarEstadoAsync(1);
         await using var check=f.CreateDbContext();
         Assert.False((await check.Usuarios.FindAsync(1))!.Activo);
@@ -43,14 +43,14 @@ public class AdminUsuarioServiceTests
             db.Usuarios.Add(new Usuario { Id=1, Nombre="Admin", Correo="a@x.com", NombreUsuario="admin", Contrasena="x", Rol="Administrador" });
             await db.SaveChangesAsync();
         }
-        var s=new AdminUsuarioService(f,new PasswordService());
+        var s= new AdminUsuarioService(f);
         await Assert.ThrowsAsync<InvalidOperationException>(()=>s.CambiarEstadoAsync(1));
     }
 
     [Fact]
     public async Task CambiarEstadoAsync_Inexistente_Lanza()
     {
-        var s=new AdminUsuarioService(new TestDbFactory(),new PasswordService());
+        var s= new AdminUsuarioService(new TestDbFactory());
         await Assert.ThrowsAsync<InvalidOperationException>(()=>s.CambiarEstadoAsync(99));
     }
 
@@ -62,18 +62,19 @@ public class AdminUsuarioServiceTests
             db.Usuarios.Add(new Usuario { Id=1, Nombre="A", Correo="a@x.com", NombreUsuario="a", Contrasena="vieja" });
             await db.SaveChangesAsync();
         }
-        var p=new PasswordService();
-        var s=new AdminUsuarioService(f,p);
+        var s = new AdminUsuarioService(f);
         await Assert.ThrowsAsync<ArgumentException>(()=>s.ResetearContrasenaAsync(1,"123"));
         await s.ResetearContrasenaAsync(1,"Nueva1234");
         await using var check=f.CreateDbContext();
-        Assert.True(p.Verify("Nueva1234",(await check.Usuarios.FindAsync(1))!.Contrasena));
+        Assert.True(PasswordService.Verify(
+     "Nueva1234",
+     (await check.Usuarios.FindAsync(1))!.Contrasena));
     }
 
     [Fact]
     public async Task ResetearContrasena_Inexistente_Lanza()
     {
-        var s=new AdminUsuarioService(new TestDbFactory(),new PasswordService());
+        var s=new AdminUsuarioService(new TestDbFactory());
         await Assert.ThrowsAsync<InvalidOperationException>(()=>s.ResetearContrasenaAsync(99,"Nueva1234"));
     }
 }

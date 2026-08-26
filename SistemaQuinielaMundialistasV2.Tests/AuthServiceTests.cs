@@ -9,9 +9,9 @@ namespace SistemaQuinielaMundialistasV2.Tests;
 
 public class AuthServiceTests
 {
-    private static (SqliteConnection Connection,
-                    IDbContextFactory<AppDbContext> Factory,
-                    PasswordService Passwords)
+    private static (
+        SqliteConnection Connection,
+        IDbContextFactory<AppDbContext> Factory)
         CrearEntorno()
     {
         var connection = new SqliteConnection("DataSource=:memory:");
@@ -26,19 +26,17 @@ public class AuthServiceTests
         using var db = factory.CreateDbContext();
         db.Database.EnsureCreated();
 
-        return (connection, factory, new PasswordService());
+        return (connection, factory);
     }
 
-    private static Usuario CrearUsuario(
-        PasswordService passwords,
-        bool activo = true)
+    private static Usuario CrearUsuario(bool activo = true)
     {
         return new Usuario
         {
             Nombre = "Kendall Test",
             Correo = "kendall@test.com",
             NombreUsuario = "kendall",
-            Contrasena = passwords.Hash("Clave123"),
+            Contrasena = PasswordService.Hash("Clave123"),
             PaisPreferido = "Costa Rica",
             Puntos = 0,
             Rol = "Usuario",
@@ -49,16 +47,17 @@ public class AuthServiceTests
     [Fact]
     public async Task LoginAsync_UsuarioCorrecto_RetornaUsuario()
     {
-        var (connection, factory, passwords) = CrearEntorno();
+        var (connection, factory) = CrearEntorno();
+
         using (connection)
         {
             using (var db = factory.CreateDbContext())
             {
-                db.Usuarios.Add(CrearUsuario(passwords));
+                db.Usuarios.Add(CrearUsuario());
                 db.SaveChanges();
             }
 
-            var service = new AuthService(factory, passwords);
+            var service = new AuthService(factory);
 
             var resultado = await service.LoginAsync("kendall", "Clave123");
 
@@ -71,16 +70,17 @@ public class AuthServiceTests
     [Fact]
     public async Task LoginAsync_CorreoCorrecto_RetornaUsuario()
     {
-        var (connection, factory, passwords) = CrearEntorno();
+        var (connection, factory) = CrearEntorno();
+
         using (connection)
         {
             using (var db = factory.CreateDbContext())
             {
-                db.Usuarios.Add(CrearUsuario(passwords));
+                db.Usuarios.Add(CrearUsuario());
                 db.SaveChanges();
             }
 
-            var service = new AuthService(factory, passwords);
+            var service = new AuthService(factory);
 
             var resultado =
                 await service.LoginAsync("kendall@test.com", "Clave123");
@@ -94,16 +94,17 @@ public class AuthServiceTests
     [Fact]
     public async Task LoginAsync_ContrasenaIncorrecta_RetornaError()
     {
-        var (connection, factory, passwords) = CrearEntorno();
+        var (connection, factory) = CrearEntorno();
+
         using (connection)
         {
             using (var db = factory.CreateDbContext())
             {
-                db.Usuarios.Add(CrearUsuario(passwords));
+                db.Usuarios.Add(CrearUsuario());
                 db.SaveChanges();
             }
 
-            var service = new AuthService(factory, passwords);
+            var service = new AuthService(factory);
 
             var resultado =
                 await service.LoginAsync("kendall", "Incorrecta");
@@ -118,10 +119,11 @@ public class AuthServiceTests
     [Fact]
     public async Task LoginAsync_UsuarioNoExiste_RetornaError()
     {
-        var (connection, factory, passwords) = CrearEntorno();
+        var (connection, factory) = CrearEntorno();
+
         using (connection)
         {
-            var service = new AuthService(factory, passwords);
+            var service = new AuthService(factory);
 
             var resultado =
                 await service.LoginAsync("noexiste", "Clave123");
@@ -136,16 +138,17 @@ public class AuthServiceTests
     [Fact]
     public async Task LoginAsync_UsuarioDesactivado_RetornaError()
     {
-        var (connection, factory, passwords) = CrearEntorno();
+        var (connection, factory) = CrearEntorno();
+
         using (connection)
         {
             using (var db = factory.CreateDbContext())
             {
-                db.Usuarios.Add(CrearUsuario(passwords, false));
+                db.Usuarios.Add(CrearUsuario(false));
                 db.SaveChanges();
             }
 
-            var service = new AuthService(factory, passwords);
+            var service = new AuthService(factory);
 
             var resultado =
                 await service.LoginAsync("kendall", "Clave123");
@@ -160,16 +163,17 @@ public class AuthServiceTests
     [Fact]
     public async Task LoginAsync_UsuarioMayusculas_Funciona()
     {
-        var (connection, factory, passwords) = CrearEntorno();
+        var (connection, factory) = CrearEntorno();
+
         using (connection)
         {
             using (var db = factory.CreateDbContext())
             {
-                db.Usuarios.Add(CrearUsuario(passwords));
+                db.Usuarios.Add(CrearUsuario());
                 db.SaveChanges();
             }
 
-            var service = new AuthService(factory, passwords);
+            var service = new AuthService(factory);
 
             var resultado =
                 await service.LoginAsync("KENDALL", "Clave123");
@@ -182,16 +186,17 @@ public class AuthServiceTests
     [Fact]
     public async Task LoginAsync_UsuarioConEspacios_Funciona()
     {
-        var (connection, factory, passwords) = CrearEntorno();
+        var (connection, factory) = CrearEntorno();
+
         using (connection)
         {
             using (var db = factory.CreateDbContext())
             {
-                db.Usuarios.Add(CrearUsuario(passwords));
+                db.Usuarios.Add(CrearUsuario());
                 db.SaveChanges();
             }
 
-            var service = new AuthService(factory, passwords);
+            var service = new AuthService(factory);
 
             var resultado =
                 await service.LoginAsync("   kendall   ", "Clave123");

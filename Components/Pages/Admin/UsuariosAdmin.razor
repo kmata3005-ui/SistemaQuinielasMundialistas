@@ -18,5 +18,23 @@
  async Task Cargar()=>usuarios=await Servicio.ListarAsync();
  async Task Estado(int id){try{await Servicio.CambiarEstadoAsync(id);ok=true;mensaje="Estado actualizado correctamente.";await Cargar();}catch(Exception ex){ok=false;mensaje=ex.Message;}}
  void Seleccionar(Usuario u){seleccionado=u;nueva="";mensaje="";}
- async Task Reset(){try{await Servicio.ResetearContrasenaAsync(seleccionado!.Id,nueva);ok=true;mensaje="Contraseña restablecida correctamente.";seleccionado=null;nueva="";}catch(Exception ex){ok=false;mensaje=ex.Message;}}
+    async Task Reset()
+    {
+        if (seleccionado is null)
+            return;
+
+        try
+        {
+            await Servicio.ResetearContrasenaAsync(seleccionado.Id, nueva);
+            ok = true;
+            mensaje = "Contraseña restablecida correctamente.";
+            seleccionado = null;
+            nueva = "";
+        }
+        catch (Exception ex)
+        {
+            ok = false;
+            mensaje = ex.Message;
+        }
+    }
 }

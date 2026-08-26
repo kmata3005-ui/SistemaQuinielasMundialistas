@@ -4,9 +4,9 @@ using SistemaQuinielaMundialistasV2.Models;
 
 namespace SistemaQuinielaMundialistasV2.Services;
 
-public sealed class ReporteExportService
+public static class ReporteExportService
 {
-    public byte[] CrearCsvAdministrador(EstadisticasAdministrador datos)
+    public static byte[] CrearCsvAdministrador(EstadisticasAdministrador datos)
     {
         var sb = new StringBuilder();
         sb.AppendLine("Reporte;Valor");
@@ -26,16 +26,16 @@ public sealed class ReporteExportService
         return Utf8ConBom(sb.ToString());
     }
 
-    public byte[] CrearTxtAdministrador(EstadisticasAdministrador datos)
+    public static byte[] CrearTxtAdministrador(EstadisticasAdministrador datos)
     {
         var lineas = ObtenerLineasAdministrador(datos);
         return Encoding.UTF8.GetBytes(string.Join(Environment.NewLine, lineas));
     }
 
-    public byte[] CrearPdfAdministrador(EstadisticasAdministrador datos)
+    public static byte[] CrearPdfAdministrador(EstadisticasAdministrador datos)
         => PdfSimple.Crear("Reporte administrativo - Quinielas Mundialistas V2", ObtenerLineasAdministrador(datos));
 
-    public byte[] CrearCsvUsuario(EstadisticasUsuario datos, string nombreUsuario)
+    public static byte[] CrearCsvUsuario(EstadisticasUsuario datos, string nombreUsuario)
     {
         var sb = new StringBuilder();
         sb.AppendLine("Reporte;Valor");
@@ -60,13 +60,13 @@ public sealed class ReporteExportService
         return Utf8ConBom(sb.ToString());
     }
 
-    public byte[] CrearTxtUsuario(EstadisticasUsuario datos, string nombreUsuario)
+    public static byte[] CrearTxtUsuario(EstadisticasUsuario datos, string nombreUsuario)
     {
         var lineas = ObtenerLineasUsuario(datos, nombreUsuario);
         return Encoding.UTF8.GetBytes(string.Join(Environment.NewLine, lineas));
     }
 
-    public byte[] CrearPdfUsuario(EstadisticasUsuario datos, string nombreUsuario)
+    public static byte[] CrearPdfUsuario(EstadisticasUsuario datos, string nombreUsuario)
         => PdfSimple.Crear($"Reporte del usuario - {nombreUsuario}", ObtenerLineasUsuario(datos, nombreUsuario));
 
     private static List<string> ObtenerLineasAdministrador(EstadisticasAdministrador datos)

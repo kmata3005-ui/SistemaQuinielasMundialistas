@@ -17,7 +17,7 @@ builder.Services.AddDbContextFactory<AppDbContext>(options =>
 
 builder.Services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
 builder.Services.AddScoped<DatabaseStatusService>();
-builder.Services.AddSingleton<PasswordService>();
+
 builder.Services.AddScoped<SessionService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<AdminUsuarioService>();
@@ -29,7 +29,7 @@ builder.Services.AddScoped<RankingService>();
 builder.Services.AddScoped<InsigniaV2Service>();
 builder.Services.AddScoped<QuinielaV2Service>();
 builder.Services.AddScoped<EstadisticaV2Service>();
-builder.Services.AddSingleton<ReporteExportService>();
+
 
 var app = builder.Build();
 
@@ -48,4 +48,4 @@ app.MapRazorComponents<App>()
 
 await DatabaseInitializer.InitializeAsync(app.Services);
 
-app.Run();
+await app.RunAsync();

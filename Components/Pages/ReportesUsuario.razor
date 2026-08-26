@@ -2,7 +2,6 @@
 @rendermode InteractiveServer
 @inject SessionService Session
 @inject EstadisticaV2Service EstadisticaService
-@inject ReporteExportService Exportador
 @inject IJSRuntime JS
 @inject NavigationManager Nav
 
@@ -29,20 +28,24 @@ else
 
     <div class="row g-3">
         <div class="col-md-6">
-            <div class="card h-100"><div class="card-body">
-                <h5>Equipo más apostado</h5>
-                <div class="fs-3">@Datos.EquipoMasApostado</div>
-            </div></div>
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5>Equipo más apostado</h5>
+                    <div class="fs-3">@Datos.EquipoMasApostado</div>
+                </div>
+            </div>
         </div>
 
         <div class="col-md-6">
-            <div class="card h-100"><div class="card-body">
-                <h5>Equipo sorpresa</h5>
-                <div class="fs-3">@Datos.EquipoSorpresa</div>
-                <small class="text-muted">
-                    Se conserva la lógica de la V1: es sorpresa cuando menos de la mitad de los pronósticos apoyaban al ganador real.
-                </small>
-            </div></div>
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5>Equipo sorpresa</h5>
+                    <div class="fs-3">@Datos.EquipoSorpresa</div>
+                    <small class="text-muted">
+                        Se conserva la lógica de la V1: es sorpresa cuando menos de la mitad de los pronósticos apoyaban al ganador real.
+                    </small>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -51,10 +54,15 @@ else
     <div class="card mb-4">
         <div class="card-body">
             <div class="display-4">@Datos.ProbabilidadAcierto.ToString("0.00")%</div>
+
             <p class="mb-1">
                 @Datos.Aciertos aciertos de @Datos.PronosticosFinalizados pronósticos correspondientes a partidos finalizados.
             </p>
-            <p class="mb-0">Marcadores exactos: <strong>@Datos.MarcadoresExactos</strong>.</p>
+
+            <p class="mb-0">
+                Marcadores exactos:
+                <strong>@Datos.MarcadoresExactos</strong>.
+            </p>
         </div>
     </div>
 
@@ -62,7 +70,9 @@ else
 
     @if (Datos.DetalleSorpresas.Count == 0)
     {
-        <div class="alert alert-info">No hay suficientes partidos sorpresa para mostrar detalle.</div>
+        <div class="alert alert-info">
+            No hay suficientes partidos sorpresa para mostrar detalle.
+        </div>
     }
     else
     {
@@ -78,6 +88,7 @@ else
                         <th>% de apoyo</th>
                     </tr>
                 </thead>
+
                 <tbody>
                     @foreach (var item in Datos.DetalleSorpresas)
                     {
@@ -115,34 +126,61 @@ else
 
         if (Session.UsuarioActual is not null)
         {
-            Datos = await EstadisticaService.ObtenerUsuarioAsync(Session.UsuarioActual.Id);
+            Datos = await EstadisticaService.ObtenerUsuarioAsync(
+                Session.UsuarioActual.Id);
         }
     }
 
     private async Task DescargarCsv()
     {
-        if (Datos is null || Session.UsuarioActual is null) return;
-        await Descargar("mis_reportes.csv", "text/csv;charset=utf-8",
-            Exportador.CrearCsvUsuario(Datos, Session.UsuarioActual.NombreUsuario));
+        if (Datos is null || Session.UsuarioActual is null)
+            return;
+
+        await Descargar(
+            "mis_reportes.csv",
+            "text/csv;charset=utf-8",
+            ReporteExportService.CrearCsvUsuario(
+                Datos,
+                Session.UsuarioActual.NombreUsuario));
     }
 
     private async Task DescargarTxt()
     {
-        if (Datos is null || Session.UsuarioActual is null) return;
-        await Descargar("mis_reportes.txt", "text/plain;charset=utf-8",
-            Exportador.CrearTxtUsuario(Datos, Session.UsuarioActual.NombreUsuario));
+        if (Datos is null || Session.UsuarioActual is null)
+            return;
+
+        await Descargar(
+            "mis_reportes.txt",
+            "text/plain;charset=utf-8",
+            ReporteExportService.CrearTxtUsuario(
+                Datos,
+                Session.UsuarioActual.NombreUsuario));
     }
 
     private async Task DescargarPdf()
     {
-        if (Datos is null || Session.UsuarioActual is null) return;
-        await Descargar("mis_reportes.pdf", "application/pdf",
-            Exportador.CrearPdfUsuario(Datos, Session.UsuarioActual.NombreUsuario));
+        if (Datos is null || Session.UsuarioActual is null)
+            return;
+
+        await Descargar(
+            "mis_reportes.pdf",
+            "application/pdf",
+            ReporteExportService.CrearPdfUsuario(
+                Datos,
+                Session.UsuarioActual.NombreUsuario));
     }
 
-    private async Task Descargar(string nombre, string tipo, byte[] contenido)
+    private async Task Descargar(
+        string nombre,
+        string tipo,
+        byte[] contenido)
     {
         string base64 = Convert.ToBase64String(contenido);
-        await JS.InvokeVoidAsync("quinielasDownload.fromBase64", nombre, tipo, base64);
+
+        await JS.InvokeVoidAsync(
+            "quinielasDownload.fromBase64",
+            nombre,
+            tipo,
+            base64);
     }
 }
