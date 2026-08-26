@@ -41,7 +41,6 @@
     <Compile Remove="Services\CruceService.cs" />
     <Compile Remove="Services\GrupoService.cs" />
     <Compile Remove="Services\InsigniaService.cs" />
-    <Compile Remove="Services\SeedDataService.cs" />
     <Compile Remove="Services\TimelineService.cs" />
 
     <!-- Persistencia JSON anterior -->
