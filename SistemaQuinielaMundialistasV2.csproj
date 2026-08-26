@@ -37,7 +37,6 @@
     <!-- Servicios antiguos de Iteración 1 -->
     <Compile Remove="Services\UsuarioService.cs" />
     <Compile Remove="Services\QuinielaService.cs" />
-    <Compile Remove="Services\EstadisticaService.cs" />
     <Compile Remove="Services\CruceService.cs" />
     <Compile Remove="Services\GrupoService.cs" />
     <Compile Remove="Services\InsigniaService.cs" />
