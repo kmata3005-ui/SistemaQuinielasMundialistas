@@ -1,4 +1,4 @@
-﻿using SistemaQuinielasMundialistas.Models;
+using SistemaQuinielasMundialistas.Models;
 using SistemaQuinielasMundialistas.Services;
 
 namespace SistemaQuinielasMundialistas.Views
@@ -19,7 +19,7 @@ namespace SistemaQuinielasMundialistas.Views
             ConfigurarPanelFechaSimulada();
             ConfigurarCampoAnotadores();
             txtEstado.ReadOnly = true;
-            txtEstado.Text = "Automático";
+            txtEstado.Text = "Autom�tico";
             MostrarPartidos();
         }
 
@@ -58,7 +58,7 @@ namespace SistemaQuinielasMundialistas.Views
 
             Button btnAplicar = CrearBoton("Aplicar", 390, 6, (_, _) => AplicarFechaSeleccionada());
             Button btnHora = CrearBoton("+1 hora", 490, 6, (_, _) => AvanzarHoras(1));
-            Button btnDia = CrearBoton("+1 día", 590, 6, (_, _) => AvanzarDias(1));
+            Button btnDia = CrearBoton("+1 d�a", 590, 6, (_, _) => AvanzarDias(1));
             Button btnAhora = CrearBoton("Fecha real", 680, 6, (_, _) => RestablecerFechaReal());
             btnAhora.Width = 105;
 
@@ -147,7 +147,7 @@ namespace SistemaQuinielasMundialistas.Views
 
         private string ObtenerTextoFechaActual() =>
             $"Reloj activo: {partidoService.ObtenerFechaSimulada():dd/MM/yyyy HH:mm} | " +
-            "Duración simulada del partido: 2 horas";
+            "Duraci�n simulada del partido: 2 horas";
 
         private DateTime AjustarRango(DateTime fecha)
         {
@@ -188,7 +188,7 @@ namespace SistemaQuinielasMundialistas.Views
                 partidoService.AgregarPartido(partido);
                 MostrarPartidos();
                 LimpiarCampos();
-                MessageBox.Show("Partido guardado correctamente. El estado fue calculado automáticamente.");
+                MessageBox.Show("Partido guardado correctamente. El estado fue calculado autom�ticamente.");
             }
             catch (ArgumentException ex)
             {
@@ -254,7 +254,7 @@ namespace SistemaQuinielasMundialistas.Views
                 usuarioService.RecalcularPuntosUsuarios(pronosticoService.ObtenerPronosticos());
                 MostrarPartidos();
 
-                MessageBox.Show("Partido, estado automático, pronósticos y ranking actualizados correctamente.");
+                MessageBox.Show("Partido, estado autom�tico, pron�sticos y ranking actualizados correctamente.");
             }
             catch (ArgumentException ex)
             {
@@ -284,7 +284,7 @@ namespace SistemaQuinielasMundialistas.Views
         {
             txtEquipoLocal.Clear();
             txtEquipoVisitante.Clear();
-            txtEstado.Text = "Automático";
+            txtEstado.Text = "Autom�tico";
             nudGolesLocal.Value = 0;
             nudGolesVisitante.Value = 0;
             txtAnotadores.Clear();
@@ -292,8 +292,5 @@ namespace SistemaQuinielasMundialistas.Views
             txtEquipoLocal.Focus();
         }
 
-        private void label6_Click(object sender, EventArgs e)
-        {
-        }
     }
 }

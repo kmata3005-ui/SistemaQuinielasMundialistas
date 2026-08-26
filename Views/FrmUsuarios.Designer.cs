@@ -1,4 +1,4 @@
-ï»¿namespace SistemaQuinielasMundialistas.Views
+namespace SistemaQuinielasMundialistas.Views
 {
     partial class FrmUsuarios
     {
@@ -52,7 +52,7 @@
             label1.Name = "label1";
             label1.Size = new Size(206, 25);
             label1.TabIndex = 0;
-            label1.Text = "MÃ“DULO DE USUARIOS";
+            label1.Text = "MÓDULO DE USUARIOS";
             // 
             // label2
             // 
@@ -62,7 +62,6 @@
             label2.Size = new Size(82, 25);
             label2.TabIndex = 1;
             label2.Text = "Nombre:";
-            label2.Click += label2_Click;
             // 
             // label3
             // 
@@ -89,7 +88,7 @@
             label5.Name = "label5";
             label5.Size = new Size(105, 25);
             label5.TabIndex = 4;
-            label5.Text = "ContraseÃ±a:";
+            label5.Text = "Contraseña:";
             // 
             // txtNombre
             // 
@@ -189,7 +188,7 @@
             Controls.Add(label2);
             Controls.Add(label1);
             Name = "FrmUsuarios";
-            Text = "GestiÃ³n de Usuarios";
+            Text = "Gestión de Usuarios";
             ((System.ComponentModel.ISupportInitialize)dgvUsuarios).EndInit();
             ResumeLayout(false);
             PerformLayout();

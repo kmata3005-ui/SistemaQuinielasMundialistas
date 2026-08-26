@@ -1,4 +1,4 @@
-﻿using SistemaQuinielasMundialistas.Models;
+using SistemaQuinielasMundialistas.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -116,9 +116,5 @@ namespace SistemaQuinielasMundialistas.Views
             MessageBox.Show("Usuario actualizado correctamente.");
         }
 
-        private void label2_Click(object sender, EventArgs e)
-        {
-
-        }
     }
 }

@@ -1,4 +1,4 @@
-ï»¿namespace SistemaQuinielasMundialistas.Views
+namespace SistemaQuinielasMundialistas.Views
 {
     partial class FrmQuinielas
     {
@@ -48,7 +48,7 @@
             label1.Name = "label1";
             label1.Size = new Size(209, 25);
             label1.TabIndex = 0;
-            label1.Text = "MÃ“DULO DE QUINIELAS";
+            label1.Text = "MÓDULO DE QUINIELAS";
             // 
             // label2
             // 
@@ -66,7 +66,7 @@
             label3.Name = "label3";
             label3.Size = new Size(108, 25);
             label3.TabIndex = 2;
-            label3.Text = "DescripciÃ³n:";
+            label3.Text = "Descripción:";
             // 
             // txtNombreQuiniela
             // 
@@ -131,7 +131,6 @@
             dgvQuinielas.Size = new Size(832, 264);
             dgvQuinielas.TabIndex = 9;
             dgvQuinielas.CellClick += dgvQuinielas_CellClick;
-            dgvQuinielas.CellContentClick += dgvQuinielas_CellContentClick;
             // 
             // FrmQuinielas
             // 
@@ -149,7 +148,7 @@
             Controls.Add(label2);
             Controls.Add(label1);
             Name = "FrmQuinielas";
-            Text = "MÃ³dulo de Quinielas";
+            Text = "Módulo de Quinielas";
             ((System.ComponentModel.ISupportInitialize)dgvQuinielas).EndInit();
             ResumeLayout(false);
             PerformLayout();

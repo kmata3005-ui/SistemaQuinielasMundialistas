@@ -1,4 +1,4 @@
-﻿namespace SistemaQuinielasMundialistas.Views
+namespace SistemaQuinielasMundialistas.Views
 {
     partial class FrmPartidos
     {
@@ -58,7 +58,7 @@
             label1.Name = "label1";
             label1.Size = new Size(202, 25);
             label1.TabIndex = 0;
-            label1.Text = "MÓDULO DE PARTIDOS";
+            label1.Text = "M�DULO DE PARTIDOS";
             // 
             // label2
             // 
@@ -182,7 +182,6 @@
             label6.Size = new Size(105, 25);
             label6.TabIndex = 14;
             label6.Text = "Goles Local:";
-            label6.Click += label6_Click;
             // 
             // label7
             // 

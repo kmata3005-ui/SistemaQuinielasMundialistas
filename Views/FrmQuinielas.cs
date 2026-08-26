@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -69,10 +69,6 @@ namespace SistemaQuinielasMundialistas.Views
             MessageBox.Show("Quiniela eliminada correctamente.");
         }
 
-        private void dgvQuinielas_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
 
         private void dgvQuinielas_CellClick(object sender, DataGridViewCellEventArgs e)
         {
